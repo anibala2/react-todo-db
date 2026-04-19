@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import { supabase } from './lib/supabaseClient'
+import Auth from './Auth'
 
 // 1. This interface defines what a Todo looks like
 interface Todo {
@@ -14,10 +15,24 @@ function App() {
   const [todos, setTodos] = useState<Todo[]>([])
   const [inputValue, setInputValue] = useState('')
   const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState(null)
+  const [authLoading, setAuthLoading] = useState(true)
+  
+	useEffect(() => {
+	  const { data: { subscription } } =
+		supabase.auth.onAuthStateChange((event, session) => {
+		  setUser(session?.user ?? null)
+		  setAuthLoading(false)
 
-  useEffect(() => {
-    fetchTodos()
-  }, [])
+		  if (session?.user) {
+			fetchTodos()
+		  } else {
+			setTodos([])
+		  }
+		})
+
+	  return () => subscription.unsubscribe()
+	}, [])
 
   async function fetchTodos() {
     setLoading(true)
@@ -33,6 +48,11 @@ function App() {
       setTodos(data as Todo[])
     }
     setLoading(false)
+  }
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut()
+    if (error) console.error('Error signing out:', error.message)
   }
 
   // 4. Add 'React.FormEvent' type to the event parameter
@@ -67,9 +87,32 @@ function App() {
     }
   }
 
+
+  if (authLoading) {
+    return <div className="app"><p>Loading...</p></div>
+  }
+
+  if (!user) {
+    return (
+      <div className="app">
+        <h1>React Todo App</h1>
+        <Auth />
+      </div>
+    )
+  }
+
   return (
     <div className="app">
       <h1>React Todo App</h1>
+
+      {/* --- INSERT THE BUTTON HERE --- */}
+      <button 
+        onClick={handleSignOut} 
+        style={{ marginBottom: '20px', cursor: 'pointer' }}
+      >
+        Sign Out
+      </button>
+      {/* ------------------------------- */}
 
       <form className="todo-form" onSubmit={handleSubmit}>
         <input
