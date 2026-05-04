@@ -1,73 +1,109 @@
-# React + TypeScript + Vite
+# Movie Database
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A data-driven web application for browsing and managing a collection of movies. Built for GMU's IT 431 Project 2
 
-Currently, two official plugins are available:
+Anonymous visitors can browse the catalog. Authenticated users can add, edit, and delete movies they own.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Live Demo
 
-## React Compiler
+- **Deployed app:** _add Vercel URL here_
+- **Source:** _add GitHub URL here_
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- **React 19** + **Vite** — front end
+- **TypeScript** — type-safe components and Supabase responses
+- **Supabase** — Postgres database, authentication, and Row Level Security
+- **Vercel** — deployment
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Features
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Browse a list of movies (title, director, genre, year, runtime, rating, description) without signing in
+- Sign up and sign in with email + password via Supabase Auth
+- Authenticated users can add new movies, edit movies they created, and delete movies they created
+- CRUD restrictions are enforced at the database level via Row Level Security policies — not just hidden in the UI
+- State-based view switching across four distinct views (Home, Movies, Sign In, Sign Up) with a persistent nav bar
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Project Structure
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── App.tsx                       # Top-level component: holds auth + view state
+├── types.ts                      # Shared types (Movie, MovieFormData, View)
+├── lib/
+│   └── supabaseClient.ts         # Supabase client initialization
+└── components/
+    ├── NavBar.tsx                # Always-visible navigation bar
+    ├── HomeView.tsx              # Landing view
+    ├── ProductListView.tsx       # Movie table + CRUD actions
+    ├── SignInView.tsx            # Sign-in form
+    ├── SignUpView.tsx            # Sign-up form
+    └── MovieFormModal.tsx        # Add / Edit modal form
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Local Development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Prerequisites
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- Node.js 18 or later
+- A Supabase project with the `movies` table and RLS policies set up (see below)
+
+### Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/<your-username>/<repo-name>.git
+   cd <repo-name>
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env.local` file at the project root with your Supabase credentials:
+   ```
+   VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co
+   VITE_SUPABASE_ANON_KEY=<your-anon-key>
+   ```
+
+4. Start the dev server:
+   ```bash
+   npm run dev
+   ```
+
+   The app will be available at `http://localhost:5173`.
+
+## Database Setup
+
+The `movies` table and RLS policies can be created by running the SQL in `project2-movie-db.txt` (included in the project root) inside the Supabase SQL editor. This will:
+
+- Create the `movies` table with seven fields plus `id`, `user_id`, and `created_at`
+- Enable Row Level Security
+- Add four policies:
+  - **SELECT:** anyone (including anonymous) can read
+  - **INSERT/UPDATE/DELETE:** authenticated users can manage only their own rows (`auth.uid() = user_id`)
+- Insert sample movie data
+
+## Deployment
+
+The app is deployed to Vercel. To deploy your own copy:
+
+1. Push the repository to GitHub
+2. Import the repo into Vercel (vercel.com → Add New Project)
+3. Vercel auto-detects Vite as the framework
+4. Before deploying, add the two environment variables under **Settings → Environment Variables**:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+5. Deploy
+
+## Available Scripts
+
+- `npm run dev` — start the Vite dev server with HMR
+- `npm run build` — type-check and produce a production build in `dist/`
+- `npm run preview` — preview the production build locally
+- `npm run lint` — run ESLint
+
+## Author
+
+Anirudh Balaji

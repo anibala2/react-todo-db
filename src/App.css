@@ -1,75 +1,380 @@
-.app {
-  max-width: 500px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-  font-family: 'Segoe UI', Arial, sans-serif;
-}
 
-h1 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  color: #333;
-}
-
-.todo-form {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.todo-form input {
-  flex: 1;
-  padding: 0.6rem 0.8rem;
-  font-size: 1rem;
-  border: 2px solid #ddd;
-  border-radius: 6px;
-  outline: none;
-}
-
-.todo-form input:focus {
-  border-color: #4a90d9;
-}
-
-.todo-form button {
-  padding: 0.6rem 1.2rem;
-  background: #4a90d9;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.todo-form button:hover {
-  background: #357abd;
-}
-
-.todo-list {
-  list-style: none;
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
   padding: 0;
 }
 
-.todo-item {
+:root {
+  --bg: #f5f0eb;
+  --surface: #fdfaf7;
+  --surface-raised: #f0ebe4;
+  --border: #ddd5c8;
+  --text: #2c2520;
+  --text-muted: #7a6e65;
+  --accent: #6c63ff;
+  --accent-hover: #5a52e0;
+  --danger: #d94f4f;
+  --danger-hover: #c03c3c;
+  --success: #3a9e6e;
+  --edit: #c47f00;
+  --edit-hover: #a86c00;
+  --radius: 8px;
+  --radius-lg: 14px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.1);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+}
+
+.app-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  margin-bottom: 0.5rem;
-  background: #fafafa;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 20px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 28px;
 }
 
-.delete-btn {
-  background: #e74c3c;
-  color: white;
+.app-header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.user-email {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.anon-note {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
   border: none;
-  padding: 0.35rem 0.75rem;
-  border-radius: 4px;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 0.85rem;
+  transition: background 0.15s, opacity 0.15s;
+  white-space: nowrap;
 }
 
-.delete-btn:hover {
-  background: #c0392b;
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+
+.btn-secondary {
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover:not(:disabled) { background: var(--border); }
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.btn-danger:hover:not(:disabled) { background: var(--danger-hover); }
+
+.btn-edit {
+  background: var(--edit);
+  color: #000;
+}
+.btn-edit:hover:not(:disabled) { background: var(--edit-hover); }
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+}
+
+.auth-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  max-width: 420px;
+  margin-bottom: 28px;
+}
+
+
+
+.loading-msg,
+.empty-msg {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 48px 0;
+  font-size: 1rem;
+}
+
+
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.movies-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.movies-table thead {
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border);
+}
+
+.movies-table th {
+  padding: 13px 16px;
+  text-align: left;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.movies-table td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.movies-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.movies-table tbody tr:hover {
+  background: var(--surface-raised);
+}
+
+.genre-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  background: rgba(108, 99, 255, 0.18);
+  color: #a89dff;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.description-cell {
+  max-width: 260px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+.actions-cell .btn-sm + .btn-sm,
+.actions-cell .btn-sm + .confirm-delete {
+  margin-left: 6px;
+}
+
+.confirm-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px 36px;
+  width: 100%;
+  max-width: 560px;
+  box-shadow: var(--shadow);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+
+.movie-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 480px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.movie-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.movie-form input,
+.movie-form textarea,
+.movie-form select {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 0.95rem;
+  padding: 9px 12px;
+  width: 100%;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+
+.movie-form input:focus,
+.movie-form textarea:focus,
+.movie-form select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.movie-form input::placeholder,
+.movie-form textarea::placeholder {
+  color: #4a4f6e;
+}
+
+.movie-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.error-message {
+  background: rgba(224, 92, 92, 0.12);
+  border: 1px solid rgba(224, 92, 92, 0.4);
+  color: #f08080;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  margin-bottom: 12px;
+}
+
+/* ── Auth form overrides (targets Auth.jsx's built-in elements) ─────────── */
+
+.auth-section form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-section input {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 0.95rem;
+  padding: 9px 12px;
+  width: 100%;
+}
+
+.auth-section input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.auth-section button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+  width: 100%;
+}
+
+.auth-section button:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.auth-section p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-align: center;
 }
